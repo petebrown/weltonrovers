@@ -1,15 +1,23 @@
+#' Title
+#'
+#' @param seasons
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_ssn_pts <- function(seasons) {
   df <- get_results_raw() %>%
-    filter(
+    dplyr::filter(
       game_type == "league",
       season %in% seasons
     ) %>%
-    mutate(
+    dplyr::mutate(
       date_str = format(date, format = "%e %B %Y"),
       weekday = wday(date, label = TRUE, abbr = FALSE)
     )
 
-  p <- ggplot(df,
+  p <- ggplot2::ggplot(df,
               aes(
                 x = comp_game_no,
                 y = ssn_pts,
@@ -30,22 +38,22 @@ plot_ssn_pts <- function(seasons) {
                                ssn_pts,
                                ppg)
               )) +
-    geom_line(aes(color = season)) +
-    geom_point(aes(color = season)) +
-    theme_bw() +
-    scale_color_brewer(
+    ggplot2::geom_line(aes(color = season)) +
+    ggplot2::geom_point(aes(color = season)) +
+    ggplot2::theme_bw() +
+    ggplot2::scale_color_brewer(
       palette = "Greens",
       name = ""
     ) +
-    labs(
+    ggplot2::labs(
       x = NULL,
       y = NULL
     ) +
-    theme(
+    ggplot2::theme(
       text = element_text(
         family = "Helvetica Neue"
       )
     )
 
-  ggplotly(p, tooltip = "text") %>% layout(hoverlabel = list(align = "left"))
+  plotly::ggplotly(p, tooltip = "text") %>% layout(hoverlabel = list(align = "left"))
 }

@@ -1,3 +1,9 @@
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_chart_options <- function() {
   charts <- c(
     "Point Accumulation" = "pts",
@@ -6,15 +12,27 @@ get_chart_options <- function() {
   return(charts)
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_results_raw <- function() {
-  results <- read_csv("./data/results.csv", show_col_types = FALSE)
+  results <- readr::read_csv("./data/results.csv", show_col_types = FALSE)
   return(results)
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_results <- function() {
   results <- get_results_raw() %>%
-    arrange(desc(date)) %>%
-    select(
+    dplyr::arrange(desc(date)) %>%
+    dplyr::select(
       season,
       game_no,
       date,
@@ -34,12 +52,26 @@ get_results <- function() {
   return(results)
 }
 
+#' Title
+#'
+#' @param seasons
+#'
+#' @return
+#' @export
+#'
+#' @examples
 filter_results <- function(seasons) {
   results <- get_results() %>%
-    filter(season %in% seasons)
+    dplyr::filter(season %in% seasons)
   return(results)
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_season_list <- function() {
   results <- get_results()
   seasons <- sort(unique(results$season), decreasing = TRUE)
@@ -47,35 +79,57 @@ get_season_list <- function() {
   return(seasons)
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_scorers <- function() {
-  scorers <- read_csv("./data/scorers.csv", show_col_types = FALSE)
+  scorers <- readr::read_csv("./data/scorers.csv", show_col_types = FALSE)
 
   return(scorers)
 }
 
+#' Title
+#'
+#' @param seasons
+#'
+#' @return
+#' @export
+#'
+#' @examples
 filter_scorers <- function(seasons) {
   scorers <- get_scorers()
   results <- filter_results(seasons)
   df <- scorers %>%
-    right_join(results, by = "date", relationship = "many-to-many")
+    dplyr::right_join(results, by = "date", relationship = "many-to-many")
   return(df)
 }
 
+#' Title
+#'
+#' @param seasons
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_ssn_scorers <- function(seasons) {
   df <- filter_scorers(seasons) %>%
-    group_by(season, player_name) %>%
-    summarize(
+    dplyr::group_by(season, player_name) %>%
+    dplyr::summarize(
       total_goals = sum(goals_scored),
       .groups = "keep"
     ) %>%
-    ungroup() %>%
-    group_by(season) %>%
-    slice_max(
+    dplyr::ungroup() %>%
+    dplyr::group_by(season) %>%
+    dplyr::slice_max(
       n = 3,
       order_by = total_goals
     ) %>%
-    ungroup() %>%
-    arrange(
+    dplyr::ungroup() %>%
+    dplyr::arrange(
       season,
       desc(total_goals),
       desc(player_name)

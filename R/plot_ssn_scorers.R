@@ -1,49 +1,58 @@
+#' Title
+#'
+#' @param seasons
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_ssn_scorers <- function(seasons) {
   df <- get_ssn_scorers(seasons) %>%
-    arrange(
+    dplyr::arrange(
       season,
       total_goals,
       player_name
     ) %>%
-    mutate(
+    dplyr::mutate(
       ordered = paste0(season, total_goals, player_name) %>%
         forcats::fct_inorder()
     )
-  p <- ggplot(
+
+  p <- ggplot2::ggplot(
     df,
     aes(x = ordered, y = total_goals)
   ) +
-    geom_col(
+    ggplot2::geom_col(
       aes(
         fill = total_goals
       )
     ) +
-    geom_text(aes(x = ordered, y = total_goals, label = total_goals),
+    ggplot2::geom_text(aes(x = ordered, y = total_goals, label = total_goals),
               color = "white",
               hjust = 1,
               nudge_y = -0.2) +
-    labs(
+    ggplot2::labs(
       x = NULL,
       y = NULL
     ) +
-    facet_wrap(
+    ggplot2::facet_wrap(
       ~season,
       scales = "free_y",
       ncol = 2
     ) +
-    scale_fill_gradient(
+    ggplot2::scale_fill_gradient(
       low = "green4",
       high = "darkgreen"
     ) +
-    scale_x_discrete(
+    ggplot2::scale_x_discrete(
       labels = setNames(df$player_name, df$ordered),
       expand = expansion(mult = c(0, 0), add = c(0, 0))
     ) +
-    scale_y_continuous(
+    ggplot2::scale_y_continuous(
       expand = expansion(mult = c(0, 0), add = c(0, 0))
     ) +
-    theme_classic(base_size = 15) +
-    theme(
+    ggplot2::theme_classic(base_size = 15) +
+    ggplot2::theme(
       legend.position = "none",
       text = element_text(
         family = "Helvetica Neue"
@@ -63,7 +72,7 @@ plot_ssn_scorers <- function(seasons) {
       axis.ticks = element_blank(),
       panel.spacing = unit(1.5, "lines")
     ) +
-    coord_flip()
+    ggplot2::coord_flip()
 
   p
 }

@@ -16,6 +16,7 @@ get_chart_options <- function() {
 #'
 #' @return
 #' @export
+#' @inheritParams readr::read_csv
 #'
 #' @examples
 get_results_raw <- function() {
@@ -23,10 +24,15 @@ get_results_raw <- function() {
   return(results)
 }
 
+
 #' Title
 #'
 #' @return
 #' @export
+#' @inheritParams dplyr::arrange
+#' @inheritParams dplyr::select
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 get_results <- function() {
@@ -52,12 +58,14 @@ get_results <- function() {
   return(results)
 }
 
+
 #' Title
 #'
 #' @param seasons
 #'
 #' @return
 #' @export
+#' @inheritParams dplyr::filter
 #'
 #' @examples
 filter_results <- function(seasons) {
@@ -65,6 +73,7 @@ filter_results <- function(seasons) {
     dplyr::filter(season %in% seasons)
   return(results)
 }
+
 
 #' Title
 #'
@@ -83,6 +92,7 @@ get_season_list <- function() {
 #'
 #' @return
 #' @export
+#' @inheritParams readr::read_csv
 #'
 #' @examples
 get_scorers <- function() {
@@ -94,6 +104,7 @@ get_scorers <- function() {
 #' Title
 #'
 #' @param seasons
+#' @inheritParams dplyr::right_join
 #'
 #' @return
 #' @export
@@ -110,6 +121,13 @@ filter_scorers <- function(seasons) {
 #' Title
 #'
 #' @param seasons
+#' @inheritParams dplyr::group_by
+#' @inheritParams dplyr::summarize
+#' @inheritParams dplyr::ungroup
+#' @inheritParams dplyr::group_by
+#' @inheritParams dplyr::slice_max
+#' @inheritParams dplyr::ungroup
+#' @inheritParams dplyr::arrange
 #'
 #' @return
 #' @export

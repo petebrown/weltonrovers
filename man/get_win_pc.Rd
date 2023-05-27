@@ -6,9 +6,6 @@
 \usage{
 get_win_pc(seasons)
 }
-\arguments{
-\item{seasons}{}
-}
 \description{
 Title
 }

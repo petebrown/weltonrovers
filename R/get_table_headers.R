@@ -2,6 +2,8 @@
 #'
 #' @return
 #' @export
+#' @inheritParams htmltools::withTags
+#' @inheritParams purrr::lapply
 #'
 #' @examples
 get_table_headers <- function() {
@@ -18,7 +20,8 @@ get_table_headers <- function() {
         purrr:lapply(names(get_ssn_records("2022/23")), th)
       )
     )
-  ))
+  )
+  )
 
   return (sketch)
 }

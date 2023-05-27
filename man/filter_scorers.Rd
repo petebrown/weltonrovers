@@ -6,9 +6,6 @@
 \usage{
 filter_scorers(seasons)
 }
-\arguments{
-\item{seasons}{}
-}
 \description{
 Title
 }

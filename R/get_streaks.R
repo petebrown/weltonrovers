@@ -1,72 +1,49 @@
 #' Title
 #'
 #' @param seasons
+#' @inheritParams dplyr::filter
+#' @inheritParams dplyr::arrange
+#' @inheritParams dplyr::group_by
+#' @inheritParams dplyr::mutate
+#' @inheritParams dplyr::rename
+#' @inheritParams dplyr::summarize
 #'
 #' @return
 #' @export
 #'
 #' @examples
-get_ssn_records <- function(seasons) {
-  df <- get_results_raw() %>%
-    dplyr::filter(season %in% seasons)
-
-  home_df <- df %>%
-    dplyr::filter(
-      game_type == "league",
-      venue == "H",
-    ) %>%
+get_streaks <- function(seasons) {
+  streaks <- get_results_raw() %>%
+    dplyr::filter(season %in% seasons) %>%
+    dplyr::arrange(season, date) %>%
     dplyr::group_by(season) %>%
-    dplyr::summarise(
-      P = n(),
-      HW = sum(outcome == "W"),
-      HD = sum(outcome == "D"),
-      HL = sum(outcome == "L"),
-      HGF = sum(goals_for),
-      HGA = sum(goals_against),
-    ) %>%
     dplyr::mutate(
-      H_pts = (HW * 3) + HD,
-      HGD = HGF - HGA,
-      HGF_HGA = paste(HGF, HGA, sep="-"),
-      HW_pc = round((HW/P) * 100, 2),
-      H_ppg = round((H_pts / P), 2)
+      wins = ifelse(outcome == "W", 1, 0),
+      unbeaten = ifelse(outcome != "L", 1, 0),
+      losses = ifelse(outcome == "L", 1, 0),
+      winless = ifelse(outcome != "W", 1, 0),
+      draws = ifelse(outcome == "D", 1, 0),
+      cs = ifelse(goals_against == 0, 1, 0),
+      goalless = ifelse(goals_for == 0, 1, 0),
+      w_streak = ifelse(wins == 0, 0, sequence(rle(as.character(wins))$lengths)),
+      unbeaten_streak = ifelse(unbeaten == 0, 0, sequence(rle(as.character(unbeaten))$lengths)),
+      losing_streak = ifelse(losses == 0, 0, sequence(rle(as.character(losses))$lengths)),
+      winless_streak = ifelse(winless == 0, 0, sequence(rle(as.character(winless))$lengths)),
+      d_streak = ifelse(draws == 0, 0, sequence(rle(as.character(draws))$lengths)),
+      clean_sheets = ifelse(cs == 0, 0, sequence(rle(as.character(cs))$lengths)),
+      goalless_streak = ifelse(goalless == 0, 0, sequence(rle(as.character(goalless))$lengths)),
     ) %>%
-    dplyr::select(season, HW, HD, HL, HGF, HGA, HGF_HGA, HGD, HW_pc, H_pts, H_ppg)
+    dplyr::rename(Season = season) %>%
+    dplyr::summarize(
+      "Wins" = max(w_streak),
+      "Unbeaten" = max(unbeaten_streak),
+      "Losses" = max(losing_streak),
+      "Winless" = max(winless_streak),
+      "Draws" = max(d_streak),
+      "Clean sheets" = max(clean_sheets),
+      "Didn't score" = max(goalless_streak)
+    ) %>%
+    dplyr::arrange(desc(Season))
 
-  away_df <- df %>%
-    dplyr::filter(
-      game_type == "league",
-      venue == "A",
-    ) %>%
-    dplyr::group_by(season) %>%
-    dplyr::summarise(
-      P = n(),
-      AW = sum(outcome == "W"),
-      AD = sum(outcome == "D"),
-      AL = sum(outcome == "L"),
-      AGF = sum(goals_for),
-      AGA = sum(goals_against),
-    ) %>%
-    dplyr::mutate(
-      A_pts = (AW * 3) + AD,
-      AGD = AGF - AGA,
-      AGF_AGA = paste(AGF, AGA, sep="-"),
-      AW_pc = round((AW/P) * 100, 2),
-      A_ppg = round((A_pts / P), 2)
-    ) %>%
-    dplyr::select(season, AW, AD, AL, AGF, AGA, AGF_AGA, AGD, AW_pc, A_pts, A_ppg)
-
-  seasons_df <- inner_join(home_df, away_df, by = c("season")) %>%
-    dplyr::mutate(
-      P = HW + HD + HL + AW + AD + AL,
-      GF = (HGF + AGF),
-      GA = (HGA + AGA),
-      GF_GA = paste(GF, GA, sep = "-"),
-      GD = (HGF + AGF) - (HGA + AGA),
-      Pts = (HW * 3) + HD + (AW *3) + AD,
-      PPG = round(Pts / P, 2)
-    ) %>%
-    dplyr::select(season, P, HW, HD, HL, HGF, HGA, HGF_HGA, HGD, HW_pc, H_pts, H_ppg, AW, AD, AL, AGF, AGA, AGF_AGA, AGD, AW_pc, A_pts, A_ppg, GF, GA, GF_GA, GD, Pts, PPG)
-
-  return (seasons_df)
+  return(streaks)
 }

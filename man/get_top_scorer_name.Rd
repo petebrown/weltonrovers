@@ -6,9 +6,6 @@
 \usage{
 get_top_scorer_name(season)
 }
-\arguments{
-\item{season}{}
-}
 \description{
 Title
 }

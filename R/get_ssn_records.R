@@ -1,72 +1,52 @@
 #' Title
 #'
 #' @param seasons
+#' @param input_venue
+#' @inheritParam dplyr::filter
+#' @inheritParam dplyr::case_when
+#' @inheritParam dplyr::group_by
+#' @inheritParam dplyr::summarise
+#' @inheritParam dplyr::mutate
+#' @inheritParam dplyr::select
+#' @inheritParam dplyr::rename
 #'
 #' @return
 #' @export
 #'
 #' @examples
-get_ssn_records <- function(seasons) {
+get_ssn_records <- function(seasons, input_venue = "all") {
   df <- get_results_raw() %>%
-    dplyr::filter(season %in% seasons)
-
-  home_df <- df %>%
     dplyr::filter(
+      season %in% seasons,
       game_type == "league",
-      venue == "H",
+      dplyr::case_when(
+        input_venue == "all" ~ venue %in% c("H", "A", "N"),
+        TRUE ~ venue == toupper(input_venue))
     ) %>%
     dplyr::group_by(season) %>%
     dplyr::summarise(
-      P = n(),
-      HW = sum(outcome == "W"),
-      HD = sum(outcome == "D"),
-      HL = sum(outcome == "L"),
-      HGF = sum(goals_for),
-      HGA = sum(goals_against),
+      P = dplyr::n(),
+      W = sum(outcome == "W"),
+      D = sum(outcome == "D"),
+      L = sum(outcome == "L"),
+      GF = sum(goals_for),
+      GA = sum(goals_against)
     ) %>%
     dplyr::mutate(
-      H_pts = (HW * 3) + HD,
-      HGD = HGF - HGA,
-      HGF_HGA = paste(HGF, HGA, sep="-"),
-      HW_pc = round((HW/P) * 100, 2),
-      H_ppg = round((H_pts / P), 2)
+      GD = GF - GA,
+      GF_GA = paste(GF, GA, sep="-"),
+      W_pc = round((W/P) * 100, 2),
+      Pts = (W * 3) + D,
+      PPG = round((Pts / P), 2)
     ) %>%
-    dplyr::select(season, HW, HD, HL, HGF, HGA, HGF_HGA, HGD, HW_pc, H_pts, H_ppg)
+    dplyr::select(season, P, W, D, L, GF, GA, GD, W_pc, Pts, PPG) %>%
+    dplyr::rename(
+      Season = season
+    )
+  # %>%
+  #   rename_with(.cols = W:ppg,
+  #               .fn = ~ paste0(input_venue, .x)
+  #   )
 
-  away_df <- df %>%
-    dplyr::filter(
-      game_type == "league",
-      venue == "A",
-    ) %>%
-    dplyr::group_by(season) %>%
-    dplyr::summarise(
-      P = n(),
-      AW = sum(outcome == "W"),
-      AD = sum(outcome == "D"),
-      AL = sum(outcome == "L"),
-      AGF = sum(goals_for),
-      AGA = sum(goals_against),
-    ) %>%
-    dplyr::mutate(
-      A_pts = (AW * 3) + AD,
-      AGD = AGF - AGA,
-      AGF_AGA = paste(AGF, AGA, sep="-"),
-      AW_pc = round((AW/P) * 100, 2),
-      A_ppg = round((A_pts / P), 2)
-    ) %>%
-    dplyr::select(season, AW, AD, AL, AGF, AGA, AGF_AGA, AGD, AW_pc, A_pts, A_ppg)
-
-  seasons_df <- inner_join(home_df, away_df, by = c("season")) %>%
-    dplyr::mutate(
-      P = HW + HD + HL + AW + AD + AL,
-      GF = (HGF + AGF),
-      GA = (HGA + AGA),
-      GF_GA = paste(GF, GA, sep = "-"),
-      GD = (HGF + AGF) - (HGA + AGA),
-      Pts = (HW * 3) + HD + (AW *3) + AD,
-      PPG = round(Pts / P, 2)
-    ) %>%
-    dplyr::select(season, P, HW, HD, HL, HGF, HGA, HGF_HGA, HGD, HW_pc, H_pts, H_ppg, AW, AD, AL, AGF, AGA, AGF_AGA, AGD, AW_pc, A_pts, A_ppg, GF, GA, GF_GA, GD, Pts, PPG)
-
-  return (seasons_df)
+  return (df)
 }

@@ -6,9 +6,6 @@
 \usage{
 get_top_scorer_goals(season)
 }
-\arguments{
-\item{season}{}
-}
 \description{
 Title
 }

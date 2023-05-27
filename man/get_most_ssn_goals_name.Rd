@@ -4,10 +4,7 @@
 \alias{get_most_ssn_goals_name}
 \title{Title}
 \usage{
-get_most_ssn_goals_name(season)
-}
-\arguments{
-\item{season}{}
+get_most_ssn_goals_name(seasons)
 }
 \description{
 Title

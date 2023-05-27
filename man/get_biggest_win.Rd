@@ -6,9 +6,6 @@
 \usage{
 get_biggest_win(seasons)
 }
-\arguments{
-\item{seasons}{}
-}
 \description{
 Title
 }

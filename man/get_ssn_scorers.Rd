@@ -6,9 +6,6 @@
 \usage{
 get_ssn_scorers(seasons)
 }
-\arguments{
-\item{seasons}{}
-}
 \description{
 Title
 }

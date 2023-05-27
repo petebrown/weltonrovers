@@ -6,9 +6,6 @@
 \usage{
 plot_ssn_pts(seasons)
 }
-\arguments{
-\item{seasons}{}
-}
 \description{
 Title
 }
